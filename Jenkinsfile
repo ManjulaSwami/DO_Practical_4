@@ -9,7 +9,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo 'Cloning GitHub repository...'
-                // No need for additional steps; Jenkins automatically checks out from Git SCM
+                // Jenkins will automatically checkout source
             }
         }
 
@@ -20,11 +20,11 @@ pipeline {
             }
         }
 
-        stage('Deploy App') {
+        stage('Deploy and Keep Running') {
             steps {
-                echo 'Starting Node.js application...'
+                echo 'Starting Node.js app in background on port 3000...'
 
-                // Kill existing process on port 3000, if any
+                // Kill any existing app on port 3000
                 bat '''
                 @echo off
                 for /f "tokens=5" %%a in ('netstat -aon ^| find ":3000" ^| find "LISTENING"') do (
@@ -34,19 +34,16 @@ pipeline {
                 exit /b 0
                 '''
 
-                // Start the app
-                bat 'start /B node index.js'
+                // Start app in background using "start" command
+                bat 'start "NodeApp" /B node index.js'
 
-                // Optional: check if running
-                bat '''
-                timeout /t 3 >nul
-                curl http://localhost:3000
-                '''
+                // Wait indefinitely for user input to manually stop pipeline
+                input message: "Node.js app is running at http://localhost:3000. Click PROCEED to stop the server and finish the pipeline."
             }
         }
     }
 
     triggers {
-        githubPush()  // Automatically triggers pipeline when code is pushed to GitHub
+        githubPush() // Trigger on GitHub push
     }
 }
