@@ -1,12 +1,12 @@
-const express = require('express');
-const app = express();
+const http = require('http');
+
 const PORT = 3000;
 
-app.get('/', (req, res) => {
-  res.send('Hello from Node.js Application!');
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Node.js app is running successfully from Jenkins Pipeline!\n');
 });
 
-// Change this line to use 0.0.0.0 instead of default localhost
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`✅ Server is running at http://localhost:${PORT}`);
 });
